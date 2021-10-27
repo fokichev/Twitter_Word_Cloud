@@ -1,11 +1,16 @@
 import tweepy
 
 # TODO:
-# word cloud with set profile
+# download all user tweets
+# normalise data for word cloud
+# generate word cloud
+# calibrate stop words
+    # elim curse words
 # simple GUI to enter name + placeholder for word cloud
 # connect name entering to word cloud to look up custom profiles
 # code in error cases i.e. profile doesn't exist or is private
 # OPTIONAL allow user to save word cloud as jpeg
+# OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
 
 
 API_KEY = ""
@@ -30,10 +35,39 @@ def get_api():
     return api
 
 
+def get_tweets(api, name):
+    try:
+        print(f"Getting tweets for {name}")
+        user_tweets = []
+        # make initial request for most recent tweets (200 is the maximum allowed count)
+        new_tweets = api.user_timeline(screen_name = name, count = 200, tweet_mode="extended")
+        new_tweets = [x._json for x in new_tweets]
+        # save most recent tweets
+        user_tweets.extend(new_tweets)
+        oldest = user_tweets[-1]["id"] - 1
+        # keep grabbing tweets until there are no tweets left to grab
+        while len(new_tweets) > 0:
+            # all subsiquent requests use the max_id param to prevent duplicates
+            new_tweets = api.user_timeline(screen_name = name ,count = 200, max_id = oldest, tweet_mode="extended")
+            new_tweets = [x._json for x in new_tweets]
+            # save most recent tweets
+            user_tweets.extend(new_tweets)
+            #update the id of the oldest tweet less one
+            oldest = user_tweets[-1]["id"] - 1
+            print(f"...{len(user_tweets)} tweets downloaded so far")
+        # print(json.dumps(user_tweets, indent=4))
+        return user_tweets
+    except Exception as e:
+        print("User is probably privated or deleted now.")
+        print(e)
+        return {}
+
+
+
 
 
 if __name__ == "__main__":
     read_keys(API_PATH)
     api = get_api()
-    new_tweets = api.user_timeline(screen_name = "DethVeggie", count = 200, tweet_mode="extended")
-    print(new_tweets)
+    tweets = get_tweets(api, "DethVeggie")
+    print(tweets)
