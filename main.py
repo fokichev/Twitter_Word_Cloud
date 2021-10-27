@@ -1,7 +1,6 @@
 import tweepy
 
 # TODO:
-# download all user tweets
 # normalise data for word cloud
 # generate word cloud
 # calibrate stop words
@@ -58,16 +57,38 @@ def get_tweets(api, name):
         # print(json.dumps(user_tweets, indent=4))
         return user_tweets
     except Exception as e:
-        print("User is probably privated or deleted now.")
+        print("User is probably privated or deleted.")
         print(e)
         return {}
 
 
+def get_master_string(tweets):
+    master_string = ""
+    for tweet in tweets:
+        if not check_if_retweet(tweet):
+            tweet_text = check_full_text(tweet).lower()
+            master_string = master_string + tweet_text
+    return master_string
+
+
+def check_if_retweet(tweet):
+    if "retweeted_status" in tweet:
+        return True
+
+
+def check_full_text(tweet):
+    try:
+        text = tweet["full_text"]
+    except:
+        text = tweet["text"]
+    if "extended_tweet" in tweet:
+        text = tweet["extended_tweet"]["full_text"]
+    return text
 
 
 
 if __name__ == "__main__":
     read_keys(API_PATH)
     api = get_api()
-    tweets = get_tweets(api, "DethVeggie")
-    print(tweets)
+    tweets = get_tweets(api, "PFokicheva")
+    print(get_master_string(tweets))
