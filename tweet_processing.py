@@ -151,15 +151,6 @@ def get_nouns(words):
 
 
 
-# ----- GUI -----#
-
-
-
-# ----- END GUI -----#
-
-
-
-
 # ----- GENERAL METHODS ----- #
 
 def get_data_from_file(filename):
@@ -168,12 +159,16 @@ def get_data_from_file(filename):
         return data
 
 
+def get_wordcloud(name):
+    read_keys(API_PATH)
+    api = get_api()
+    tweets = get_tweets(api, name)
+    master_string = get_master_string(tweets)
+    wordcloud = create_wordcloud_object(master_string)
+    return wordcloud
+
 # ----- END GENERAL METHODS ----- #
 
 
 if __name__ == "__main__":
-    read_keys(API_PATH)
-    api = get_api()
-    tweets = get_tweets(api, "PFokicheva")
-    master_string = get_master_string(tweets)
-    wordcloud = create_wordcloud_object(master_string)
+    get_wordcloud("PFokicheva")
