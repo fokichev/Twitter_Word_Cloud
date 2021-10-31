@@ -13,14 +13,23 @@ class Root(tk.Tk):
         self.geometry("700x600")
         self.title("Word Cloud :)")
 
-        wordcloud = get_wordcloud("harpertonik")
+
+        entry_name = tk.Entry(self)
+        entry_name.grid(row = 1, column = 1)
+
+        button_submit = tk.Button(self, text = "Submit", command = lambda: self.show_wordcloud(entry_name.get()))
+        button_submit.grid(row = 2, column = 1)
+
+
+    def show_wordcloud(self, name):
+        wordcloud = get_wordcloud(name)
         fig = plt.figure(figsize=(7,5))
         im = plt.imshow(wordcloud, interpolation="bilinear")
         ax = plt.axis("off")
         plt.tight_layout(pad=0.5)
         canvas = FigureCanvasTkAgg(fig, self)
         canvas.draw()
-        canvas.get_tk_widget().grid(row = 1, column = 1) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
+        canvas.get_tk_widget().grid(row = 3, column = 1) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
 
 
 
