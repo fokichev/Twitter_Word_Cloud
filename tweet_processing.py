@@ -10,14 +10,6 @@ token = nltk.WordPunctTokenizer()
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 
-# TODO:
-# generate GUI word cloud
-# simple GUI to enter name + placeholder for word cloud
-# connect name entering to word cloud to look up custom profiles
-# code in error cases i.e. profile doesn't exist or is private
-# OPTIONAL allow user to save word cloud as jpeg
-# OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
-
 
 API_KEY = ""
 API_SECRET = ""
