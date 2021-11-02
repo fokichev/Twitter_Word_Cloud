@@ -35,32 +35,32 @@ def get_api():
     return api
 
 
-def get_tweets(api, name):
-    try:
-        print(f"Getting tweets for {name}")
-        user_tweets = []
-        # make initial request for most recent tweets (200 is the maximum allowed count)
-        new_tweets = api.user_timeline(screen_name = name, count = 200, tweet_mode="extended")
-        new_tweets = [x._json for x in new_tweets]
-        # save most recent tweets
-        user_tweets.extend(new_tweets)
-        oldest = user_tweets[-1]["id"] - 1
-        # keep grabbing tweets until there are no tweets left to grab
-        while len(new_tweets) > 0:
-            # all subsiquent requests use the max_id param to prevent duplicates
-            new_tweets = api.user_timeline(screen_name = name ,count = 200, max_id = oldest, tweet_mode="extended")
-            new_tweets = [x._json for x in new_tweets]
-            # save most recent tweets
-            user_tweets.extend(new_tweets)
-            #update the id of the oldest tweet less one
-            oldest = user_tweets[-1]["id"] - 1
-            print(f"...{len(user_tweets)} tweets downloaded so far")
-        # print(json.dumps(user_tweets, indent=4))
-        return user_tweets
-    except Exception as e:
-        print("User is probably privated or deleted.")
-        print(e)
-        return {}
+# def get_tweets(api, name):
+#     try:
+#         print(f"Getting tweets for {name}")
+#         user_tweets = []
+#         # make initial request for most recent tweets (200 is the maximum allowed count)
+#         new_tweets = api.user_timeline(screen_name = name, count = 200, tweet_mode="extended")
+#         new_tweets = [x._json for x in new_tweets]
+#         # save most recent tweets
+#         user_tweets.extend(new_tweets)
+#         oldest = user_tweets[-1]["id"] - 1
+#         # keep grabbing tweets until there are no tweets left to grab
+#         while len(new_tweets) > 0:
+#             # all subsiquent requests use the max_id param to prevent duplicates
+#             new_tweets = api.user_timeline(screen_name = name ,count = 200, max_id = oldest, tweet_mode="extended")
+#             new_tweets = [x._json for x in new_tweets]
+#             # save most recent tweets
+#             user_tweets.extend(new_tweets)
+#             #update the id of the oldest tweet less one
+#             oldest = user_tweets[-1]["id"] - 1
+#             print(f"...{len(user_tweets)} tweets downloaded so far")
+#         # print(json.dumps(user_tweets, indent=4))
+#         return user_tweets
+#     except Exception as e:
+#         print("User is probably privated or deleted.")
+#         print(e)
+#         return {}
 
 # ----- END TWITTER ----- #
 
