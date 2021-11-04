@@ -14,13 +14,14 @@ import queue
 import time
 
 # TODO:
+# OPTIONAL allow copy paste into entry with menu
+# OPTIONAL list auto scroll
 # OPTIONAL allow user to save word cloud as jpeg
 # OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
-# OPTIONAL allow copy paste into entry
-# OPTIONAL list auto scroll
+
 
 x = 10
-y = 5
+y = 2
 
 
 class Root(tk.Tk):
@@ -37,11 +38,14 @@ class Root(tk.Tk):
         self.button_submit = tk.Button(self, text = "Submit", command = lambda: self.spawnthread(self.entry_name.get()))
         self.button_submit.grid(row = 1, column = 2, padx = x, pady = y)
 
+        self.paste_button = tk.Button(self, text = "Paste from Clipboard", command = lambda: self.paste_to_entry())
+        self.paste_button.grid(row = 2, column = 1, columnspan = 1, padx = x, pady = y)
+
         self.progressbar = ttk.Progressbar(self, orient = "horizontal", length = 200, mode = "determinate")
-        self.progressbar.grid(row = 2, column = 1, columnspan = 2, padx = x, pady = y)
+        self.progressbar.grid(row = 3, column = 1, columnspan = 2, padx = x, pady = y)
 
         self.listbox = tk.Listbox(self, width = 35, height = 15)
-        self.listbox.grid(row = 3, column = 1, columnspan = 2, padx = x, pady = y)
+        self.listbox.grid(row = 4, column = 1, columnspan = 2, padx = x, pady = y)
 
 
     def spawnthread(self, name):
@@ -82,6 +86,17 @@ class Root(tk.Tk):
         self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row = 1, column = 3, rowspan = 100, padx = x, pady = y) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
+
+
+    def paste_to_entry(self):
+        # get text from clipboard
+        # text = "123"
+        copy = tk.Tk()
+        copy.withdraw()
+        text = copy.clipboard_get()
+        # set entry to text value
+        self.entry_name.delete(0, "end")
+        self.entry_name.insert(0, text)
 
 
 class ThreadedClient(threading.Thread):
