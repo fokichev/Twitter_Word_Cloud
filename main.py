@@ -2,20 +2,22 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
 from tweet_processing import *
-# tutorial for matplotlib graph in tkinter https://pythonprogramming.net/how-to-embed-matplotlib-graph-tkinter-gui/
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from wordcloud import WordCloud
-# multi threading using https://stackoverflow.com/questions/15323574/how-to-connect-a-progress-bar-to-a-function/15323917#15323917
 import threading
 import queue
 import time
 
+
+# TUTORIALS
+# tutorial for matplotlib graph in tkinter https://pythonprogramming.net/how-to-embed-matplotlib-graph-tkinter-gui/
+# multi threading using https://stackoverflow.com/questions/15323574/how-to-connect-a-progress-bar-to-a-function/15323917#15323917
+# auto scroll of listbox using https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
+
 # TODO:
-# OPTIONAL allow copy paste into entry with menu
-# OPTIONAL list auto scroll
 # OPTIONAL allow user to save word cloud as jpeg
 # OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
 
@@ -44,8 +46,18 @@ class Root(tk.Tk):
         self.progressbar = ttk.Progressbar(self, orient = "horizontal", length = 200, mode = "determinate")
         self.progressbar.grid(row = 3, column = 1, columnspan = 2, padx = x, pady = y)
 
-        self.listbox = tk.Listbox(self, width = 35, height = 15)
-        self.listbox.grid(row = 4, column = 1, columnspan = 2, padx = x, pady = y)
+        self.frame = tk.Frame(self)
+        self.frame.grid(row = 4, column = 1, columnspan = 2, padx = x, pady = y)
+
+        self.listbox = tk.Listbox(self.frame, width = 35, height = 15)
+        self.scrollbar = tk.Scrollbar(self.frame)
+        # self.listbox.grid(row = 4, column = 1, columnspan = 2, padx = x, pady = y)
+
+        self.listbox.pack(side = tk.LEFT, fill = tk.Y)
+        self.scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+
+        self.listbox.configure(yscrollcommand = self.scrollbar.set)
+        self.scrollbar.configure(command = self.listbox.yview)
 
 
     def spawnthread(self, name):
@@ -73,6 +85,12 @@ class Root(tk.Tk):
                     self.show_wordcloud(msg)
                 else:
                     self.listbox.insert('end', msg[0])
+                    # Clear the current selected item
+                    self.listbox.select_clear(self.listbox.size() - 2)
+                    # Select the new item
+                    self.listbox.select_set("end")
+                    # Set the scrollbar to the end of the listbox
+                    self.listbox.yview("end")
                     self.progressbar.step(msg[1])
             except Queue.Empty:
                 pass
