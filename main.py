@@ -20,7 +20,6 @@ import time
 # auto scroll of listbox using https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
 
 # TODO:
-# OPTIONAL allow user to save word cloud as jpeg
 # OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
 # make demo on GitHub with screenshots
 # create .exe version
@@ -71,6 +70,7 @@ class Root(tk.Tk):
     def spawn_thread(self, name):
         self.name = name
         self.button_submit.config(state = "disabled")
+        self.save_button.config(state = "disabled")
         self.thread = ThreadedClient(self.queue, self.name)
         self.thread.start()
         self.periodic_call()
@@ -82,6 +82,7 @@ class Root(tk.Tk):
             self.after(100, self.periodic_call)
         else:
             self.button_submit.config(state="active")
+            self.save_button.config(state="active")
 
 
     def check_queue(self):
@@ -114,7 +115,6 @@ class Root(tk.Tk):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row = 2, column = 3, rowspan = 100, padx = x, pady = y) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
         self.save_button.grid()
-        self.button_submit.config(state = "enabled")
 
 
     def paste_to_entry(self):
