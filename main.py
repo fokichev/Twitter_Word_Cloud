@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import ImageTk, Image
 from tweet_processing import *
 import matplotlib
@@ -14,12 +15,15 @@ import time
 
 # TUTORIALS
 # tutorial for matplotlib graph in tkinter https://pythonprogramming.net/how-to-embed-matplotlib-graph-tkinter-gui/
+# wordcloud with wine example https://www.datacamp.com/community/tutorials/wordcloud-python
 # multi threading using https://stackoverflow.com/questions/15323574/how-to-connect-a-progress-bar-to-a-function/15323917#15323917
 # auto scroll of listbox using https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
 
 # TODO:
 # OPTIONAL allow user to save word cloud as jpeg
 # OPTIONAL allow user to enter additional stop words or add a comma separated doc of stop words they dont want
+# make demo on GitHub with screenshots
+# create .exe version
 
 
 x = 10
@@ -30,14 +34,14 @@ class Root(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.geometry("900x400")
-        self.title("Word Cloud :)")
+        self.title("Word Cloud :) - by Polina Fokicheva")
         # threading
         self.queue = queue.Queue()
 
         self.entry_name = tk.Entry(self)
         self.entry_name.grid(row = 1, column = 1, padx = x, pady = y)
 
-        self.button_submit = tk.Button(self, text = "Submit", command = lambda: self.spawnthread(self.entry_name.get()))
+        self.button_submit = tk.Button(self, text = "Submit", command = lambda: self.spawn_thread(self.entry_name.get()))
         self.button_submit.grid(row = 1, column = 2, padx = x, pady = y)
 
         self.paste_button = tk.Button(self, text = "Paste from Clipboard", command = lambda: self.paste_to_entry())
@@ -59,29 +63,34 @@ class Root(tk.Tk):
         self.listbox.configure(yscrollcommand = self.scrollbar.set)
         self.scrollbar.configure(command = self.listbox.yview)
 
+        self.save_button = tk.Button(self, text = "Save Image", command = lambda: self.save_image())
+        self.save_button.grid(row = 1, column = 3, padx = x, pady = y)
+        self.save_button.grid_remove()
 
-    def spawnthread(self, name):
+
+    def spawn_thread(self, name):
+        self.name = name
         self.button_submit.config(state = "disabled")
-        self.thread = ThreadedClient(self.queue, name)
+        self.thread = ThreadedClient(self.queue, self.name)
         self.thread.start()
-        self.periodiccall()
+        self.periodic_call()
 
 
-    def periodiccall(self):
-        self.checkqueue()
+    def periodic_call(self):
+        self.check_queue()
         if self.thread.is_alive():
-            self.after(100, self.periodiccall)
+            self.after(100, self.periodic_call)
         else:
             self.button_submit.config(state="active")
 
 
-    def checkqueue(self):
+    def check_queue(self):
         while self.queue.qsize():
             try:
                 msg = self.queue.get(0)
                 if isinstance(msg, WordCloud):
-                    print("testtt")
                     self.progressbar.step(0.1)
+                    self.wordcloud = msg
                     self.show_wordcloud(msg)
                 else:
                     self.listbox.insert('end', msg[0])
@@ -92,7 +101,7 @@ class Root(tk.Tk):
                     # Set the scrollbar to the end of the listbox
                     self.listbox.yview("end")
                     self.progressbar.step(msg[1])
-            except Queue.Empty:
+            except:
                 pass
 
 
@@ -103,7 +112,9 @@ class Root(tk.Tk):
         plt.tight_layout(pad=0.5)
         self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.draw()
-        self.canvas.get_tk_widget().grid(row = 1, column = 3, rowspan = 100, padx = x, pady = y) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
+        self.canvas.get_tk_widget().grid(row = 2, column = 3, rowspan = 100, padx = x, pady = y) #, columnspan = 7, rowspan = 100, padx = x + 20, pady = y)
+        self.save_button.grid()
+        self.button_submit.config(state = "enabled")
 
 
     def paste_to_entry(self):
@@ -115,6 +126,17 @@ class Root(tk.Tk):
         # set entry to text value
         self.entry_name.delete(0, "end")
         self.entry_name.insert(0, text)
+
+
+    def save_image(self):
+        file_opt = options = {}
+        options['filetypes'] = [('PNG file', '.png')]
+        filename = self.name + "_wordcloud.png"
+        options['initialfile'] = filename
+        savefile = filedialog.asksaveasfilename(defaultextension=".png", **file_opt)
+        # print(savefile)
+        self.wordcloud.to_file(savefile)
+
 
 
 class ThreadedClient(threading.Thread):
@@ -142,7 +164,6 @@ class ThreadedClient(threading.Thread):
     def get_tweets(self, api):
         i = 0
         try:
-            print(i)
             print(f"Getting tweets for {self.name}")
             self.queue.put([f"Getting tweets for {self.name}", 10])
             user_tweets = []
@@ -164,7 +185,6 @@ class ThreadedClient(threading.Thread):
                 print(f"...{len(user_tweets)} tweets downloaded so far")
                 self.queue.put([f"...{len(user_tweets)} tweets downloaded so far", 4])
                 i = i + 4
-                print(i)
             # print(json.dumps(user_tweets, indent=4))
             self.queue.put([f"...{len(user_tweets)} tweets downloaded so far", (80 - i)])
             return user_tweets

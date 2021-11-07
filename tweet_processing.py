@@ -103,7 +103,7 @@ def create_wordcloud_object(master_string):
     stopwords = set(STOPWORDS)
     stopwords.update(get_data_from_file("word_lists/curse_words.json"))
     stopwords.update(get_data_from_file("word_lists/custom_words.json"))
-    wordcloud = WordCloud(width=1400, stopwords=stopwords,height=1000,max_font_size=200,max_words=80,collocations=False, background_color='white').generate(nouns_text)
+    wordcloud = WordCloud(width=1500, stopwords=stopwords,height=900,max_font_size=200,max_words=80,collocations=False, background_color='white').generate(nouns_text)
     return wordcloud
 
 
